@@ -1,9 +1,52 @@
 <?php 
-     
+     // Èç¹ûÊÇÐÞ¸Ä²Ù×÷Óë²éÑ¯²Ù×÷Ò»Æð£¬Ò»¶¨ÊÇÏÈ×öÐÞ¸Ä£¬ÔÙ²éÑ¯
 
       require_once('../functions.php');
       
       $categories=xiu_get_data('SELECT name,slug  from categories;');
+
+
+      // ÏÈ×öÐÞ¸ÄÔÙ×öÊý¾ÝÕ¹Ê¾
+      function add_data(){
+
+     
+
+          if (empty($_POST['name'])||empty($_POST['slug'])) {
+            $GLOBALS['errormess'] = 'ÇëÕýÈ·ÌîÐ´±íµ¥';
+            return;
+
+          }
+          $name = $_POST["name"];
+
+          $slug = $_POST['slug'];
+
+          $affected22 = xiu_execute("insert into categories values (null, '{$slug}', '{$name}');");
+
+
+      };
+
+      function add_category () {
+        if (empty($_POST['name']) || empty($_POST['slug'])) {
+          $GLOBALS['message'] = 'ÇëÍêÕûÌîÐ´±íµ¥£¡';
+          $GLOBALS['success'] = false;
+          return;
+        }
+
+  // ½ÓÊÕ²¢±£´æ
+        $name = $_POST['name'];
+        $slug = $_POST['slug'];
+
+  // insert into categories values (null, 'slug', 'name');
+        $rows = xiu_execute("insert into categories values (null, '{$slug}', '{$name}');");
+
+        $GLOBALS['success'] = $rows > 0;
+        $GLOBALS['message'] = $rows <= 0 ? 'Ìí¼ÓÊ§°Ü£¡' : 'Ìí¼Ó³É¹¦£¡';
+      }
+
+      if ($_SERVER['REQUEST_METHOD']==='POST') {
+        add_category ();
+      }
+
 
 
 
@@ -27,42 +70,44 @@
     <?php include 'inc/navbar.php' ?>
     <div class="container-fluid">
       <div class="page-title">
-        <h1>åˆ†ç±»ç›®å½•</h1>
+        <h1>·ÖÀàÄ¿Â¼</h1>
       </div>
-      <!-- æœ‰é”™è¯¯ä¿¡æ¯æ—¶å±•ç¤º -->
-      <!-- <div class="alert alert-danger">
-        <strong>é”™è¯¯ï¼</strong>å‘ç”ŸXXXé”™è¯¯
-      </div> -->
+      <!-- ÓÐ´íÎóÐÅÏ¢Ê±Õ¹Ê¾ -->
+      <?php if (isset($GLOBALS['errormess'])) :?>
+            <div class="alert alert-danger">
+        <strong>´íÎó£¡</strong> <?php echo $GLOBALS['errormess'] ?>
+      </div>
+    <?php endif ?>
       <div class="row">
         <div class="col-md-4">
-          <form>
-            <h2>æ·»åŠ æ–°åˆ†ç±»ç›®å½•</h2>
+          <form action="<?php echo $_SERVER['PHP_SELF'] ?> " method="POST" >
+            <h2>Ìí¼ÓÐÂ·ÖÀàÄ¿Â¼</h2>
             <div class="form-group">
-              <label for="name">åç§°</label>
-              <input id="name" class="form-control" name="name" type="text" placeholder="åˆ†ç±»åç§°">
+              <label for="name">Ãû³Æ</label>
+              <input id="name" class="form-control" name="name" type="text" placeholder="·ÖÀàÃû³Æ">
             </div>
             <div class="form-group">
-              <label for="slug">åˆ«å</label>
+              <label for="slug">±ðÃû</label>
               <input id="slug" class="form-control" name="slug" type="text" placeholder="slug">
               <p class="help-block">https://zce.me/category/<strong>slug</strong></p>
             </div>
             <div class="form-group">
-              <button class="btn btn-primary" type="submit">æ·»åŠ </button>
+              <button class="btn btn-primary" type="submit">Ìí¼Ó</button>
             </div>
           </form>
         </div>
         <div class="col-md-8">
           <div class="page-action">
             <!-- show when multiple checked -->
-            <a class="btn btn-danger btn-sm" href="javascript:;" style="display: none">æ‰¹é‡åˆ é™¤</a>
+            <a class="btn btn-danger btn-sm" href="javascript:;" style="display: none">ÅúÁ¿É¾³ý</a>
           </div>
           <table class="table table-striped table-bordered table-hover">
             <thead>
               <tr>
                 <th class="text-center" width="40"><input type="checkbox"></th>
-                <th>åç§°</th>
+                <th>Ãû³Æ</th>
                 <th>Slug</th>
-                <th class="text-center" width="100">æ“ä½œ</th>
+                <th class="text-center" width="100">²Ù×÷</th>
               </tr>
             </thead>
             <tbody>
@@ -76,8 +121,8 @@
                 <td><?php echo $value['name'] ?></td>
                 <td><?php echo $value['slug'] ?></td>
                 <td class="text-center">
-                  <a href="javascript:;" class="btn btn-info btn-xs">ç¼–è¾‘</a>
-                  <a href="javascript:;" class="btn btn-danger btn-xs">åˆ é™¤</a>
+                  <a href="javascript:;" class="btn btn-info btn-xs">±à¼­</a>
+                  <a href="javascript:;" class="btn btn-danger btn-xs">É¾³ý</a>
                 </td>
 
 

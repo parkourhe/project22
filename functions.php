@@ -4,11 +4,11 @@
 	require_once('config.php');
 
 
-	// å®šä¹‰å‡½æ•°ä¸€ä¸ªè¦æ³¨æ„ä¸å†…ç½®å‡½æ•°å†²çªçš„é—®é¢˜
+	// ¶¨Òåº¯ÊıÒ»¸öÒª×¢ÒâÓëÄÚÖÃº¯Êı³åÍ»µÄÎÊÌâ
 
 
 
-	// å–å¾—å½“å‰ç™»é™†ç”¨æˆ·ä¿¡æ¯
+	// È¡µÃµ±Ç°µÇÂ½ÓÃ»§ĞÅÏ¢
 function xiu_get_current_user()
 {
 	if (empty($_SESSION['cuurent_login'])) {
@@ -21,19 +21,19 @@ function xiu_get_current_user()
 
 };
 
-	// å°è£…æ•°æ®åº“æŸ¥è¯¢
+	// ·â×°Êı¾İ¿â²éÑ¯
 
 function xiu_get_data($needsql){
 	$con =mysqli_connect(XIU_DB_HOST,XIU_DB_USER,XIU_DB_PASS,XIU_DB_NAME);
 
 	if (!$con) {
-      exit('è¿æ¥æ•°æ®åº“å¤±è´¥');
+      exit('Á¬½ÓÊı¾İ¿âÊ§°Ü');
     }	
 
     $query = mysqli_query($con,$needsql);
 
     if (!$query) {
-      exit('æŸ¥è¯¢å¤±è´¥');
+      exit('²éÑ¯Ê§°Ü');
     }
 
      while ($row = mysqli_fetch_assoc($query)) {
@@ -42,4 +42,53 @@ function xiu_get_data($needsql){
 
     return $data;
 
+}
+
+
+//Ìí¼ÓÊı¾İµÄº¯Êı·â×°
+
+
+function xiu_add_data($needsql){
+
+	$con =mysqli_connect(XIU_DB_HOST,XIU_DB_USER,XIU_DB_PASS,XIU_DB_NAME);
+
+	if (!$con) {
+      exit('Á¬½ÓÊı¾İ¿âÊ§°Ü');
+    }	
+
+    $query = mysqli_query($con,$needsql);
+
+
+    if (!$query) {
+      exit('²éÑ¯Ê§°Ü');
+    }
+
+    $affected = mysqli_affected_rows($con);
+
+   	if (!affected) {
+   		exit('Ê§°Ü');
+   	}
+
+    
+}
+
+
+function xiu_execute ($sql) {
+  $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
+  if (!$conn) {
+    exit('Á¬½ÓÊ§°Ü');
+  }
+
+  $query = mysqli_query($conn, $sql);
+  if (!$query) {
+    // ²éÑ¯Ê§°Ü
+    return false;
+  }
+
+  // ¶ÔÓÚÔöÉ¾ĞŞ¸ÄÀàµÄ²Ù×÷¶¼ÊÇ»ñÈ¡ÊÜÓ°ÏìĞĞÊı
+  $affected_rows = mysqli_affected_rows($conn);
+
+  mysqli_close($conn);
+
+  return $affected_rows;
 }
