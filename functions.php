@@ -4,11 +4,11 @@
 	require_once('config.php');
 
 
-	// ¶¨Òåº¯ÊıÒ»¸öÒª×¢ÒâÓëÄÚÖÃº¯Êı³åÍ»µÄÎÊÌâ
+	// å®šä¹‰å‡½æ•°ä¸€ä¸ªè¦æ³¨æ„ä¸å†…ç½®å‡½æ•°å†²çªçš„é—®é¢˜
 
 
 
-	// È¡µÃµ±Ç°µÇÂ½ÓÃ»§ĞÅÏ¢
+	// å–å¾—å½“å‰ç™»é™†ç”¨æˆ·ä¿¡æ¯
 function xiu_get_current_user()
 {
 	if (empty($_SESSION['cuurent_login'])) {
@@ -21,19 +21,19 @@ function xiu_get_current_user()
 
 };
 
-	// ·â×°Êı¾İ¿â²éÑ¯
+	// å°è£…æ•°æ®åº“æŸ¥è¯¢
 
 function xiu_get_data($needsql){
 	$con =mysqli_connect(XIU_DB_HOST,XIU_DB_USER,XIU_DB_PASS,XIU_DB_NAME);
 
 	if (!$con) {
-      exit('Á¬½ÓÊı¾İ¿âÊ§°Ü');
+      exit('è¿æ¥æ•°æ®åº“å¤±è´¥');
     }	
 
     $query = mysqli_query($con,$needsql);
 
     if (!$query) {
-      exit('²éÑ¯Ê§°Ü');
+      exit('æŸ¥è¯¢å¤±è´¥');
     }
 
      while ($row = mysqli_fetch_assoc($query)) {
@@ -45,7 +45,7 @@ function xiu_get_data($needsql){
 }
 
 
-//Ìí¼ÓÊı¾İµÄº¯Êı·â×°
+//æ·»åŠ æ•°æ®çš„å‡½æ•°å°è£…
 
 
 function xiu_add_data($needsql){
@@ -53,20 +53,20 @@ function xiu_add_data($needsql){
 	$con =mysqli_connect(XIU_DB_HOST,XIU_DB_USER,XIU_DB_PASS,XIU_DB_NAME);
 
 	if (!$con) {
-      exit('Á¬½ÓÊı¾İ¿âÊ§°Ü');
+      exit('è¿æ¥æ•°æ®åº“å¤±è´¥');
     }	
 
     $query = mysqli_query($con,$needsql);
 
 
     if (!$query) {
-      exit('²éÑ¯Ê§°Ü');
+      exit('æŸ¥è¯¢å¤±è´¥');
     }
 
     $affected = mysqli_affected_rows($con);
 
    	if (!affected) {
-   		exit('Ê§°Ü');
+   		exit('å¤±è´¥');
    	}
 
     
@@ -76,16 +76,16 @@ function xiu_add_data($needsql){
 function xiu_execute ($sql) {
   $conn = mysqli_connect(XIU_DB_HOST, XIU_DB_USER, XIU_DB_PASS, XIU_DB_NAME);
   if (!$conn) {
-    exit('Á¬½ÓÊ§°Ü');
+    exit('è¿æ¥å¤±è´¥');
   }
 
   $query = mysqli_query($conn, $sql);
   if (!$query) {
-    // ²éÑ¯Ê§°Ü
+    // æŸ¥è¯¢å¤±è´¥
     return false;
   }
 
-  // ¶ÔÓÚÔöÉ¾ĞŞ¸ÄÀàµÄ²Ù×÷¶¼ÊÇ»ñÈ¡ÊÜÓ°ÏìĞĞÊı
+  // å¯¹äºå¢åˆ ä¿®æ”¹ç±»çš„æ“ä½œéƒ½æ˜¯è·å–å—å½±å“è¡Œæ•°
   $affected_rows = mysqli_affected_rows($conn);
 
   mysqli_close($conn);
