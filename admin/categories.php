@@ -3,7 +3,7 @@
       
       require_once('../functions.php');
       
-      $categories=xiu_get_data('SELECT name,slug  from categories;');
+    
 
 
       // 先做修改再做数据展示
@@ -20,32 +20,41 @@
 
           $slug = $_POST['slug'];
 
-          $affected22 = xiu_execute("insert into categories values (null, '{$slug}', '{$name}');");
+          $affected = xiu_add_data("insert into categories values (null, '{$slug}', '{$name}');");
+
+          if ($affected<0) {
+            exit("添加分类失败");
+          }
+
+
+          $GLOBALS['sussce'] = true;
 
 
       };
 
-      function add_category () {
-        if (empty($_POST['name']) || empty($_POST['slug'])) {
-          $GLOBALS['message'] = '请完整填写表单！';
-          $GLOBALS['success'] = false;
-          return;
-        }
+  //     function add_category () {
+  //       if (empty($_POST['name']) || empty($_POST['slug'])) {
+  //         $GLOBALS['message'] = '请完整填写表单！';
+  //         $GLOBALS['success'] = false;
+  //         return;
+  //       }
 
-  // 接收并保存
-        $name = $_POST['name'];
-        $slug = $_POST['slug'];
+  // // 接收并保存
+  //       $name = $_POST['name'];
+  //       $slug = $_POST['slug'];
 
-  // insert into categories values (null, 'slug', 'name');
-        $rows = xiu_execute("insert into categories values (null, '{$slug}', '{$name}');");
+  // // insert into categories values (null, 'slug', 'name');
+  //       $rows = xiu_execute("insert into categories values (null, '{$slug}', '{$name}');");
 
-        $GLOBALS['success'] = $rows > 0;
-        $GLOBALS['message'] = $rows <= 0 ? '添加失败！' : '添加成功！';
-      }
+  //       $GLOBALS['success'] = $rows > 0;
+  //       $GLOBALS['message'] = $rows <= 0 ? '添加失败！' : '添加成功！';
+  //     }
 
       if ($_SERVER['REQUEST_METHOD']==='POST') {
-        add_category ();
+        add_data();
       }
+
+      $categories=xiu_get_data('SELECT name,slug  from categories;');
 
 
 
@@ -73,11 +82,25 @@
         <h1>分类目录</h1>
       </div>
       <!-- 有错误信息时展示 -->
+            
+      
+
       <?php if (isset($GLOBALS['errormess'])) :?>
-            <div class="alert alert-danger">
-        <strong>错误！</strong> <?php echo $GLOBALS['errormess'] ?>
-      </div>
+        <div class="alert alert-danger">
+          <strong>错误！</strong> <?php echo $GLOBALS['errormess'] ?>
+        </div>
     <?php endif ?>
+
+
+    <?php if (isset($GLOBALS['sussce'])):  ?>
+      <div class="alert alert-success">
+        <stron>添加成功</strong>
+        </div>
+      <?php endif ?>
+
+
+
+
       <div class="row">
         <div class="col-md-4">
           <form action="<?php echo $_SERVER['PHP_SELF'] ?> " method="POST" >
