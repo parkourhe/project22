@@ -58,12 +58,15 @@ function xiu_get_data($needsql){
 //添加数据的函数封装
 
 
-function xiu_add_data($sql){
+function xiu_update_data($sql){
 
 	
 	$con = connect_database();
 
 	$query = mysqli_query($con, $sql);
+
+
+
 
 	if (!$query) {
     // 查询失败

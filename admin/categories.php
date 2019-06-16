@@ -20,7 +20,7 @@
 
           $slug = $_POST['slug'];
 
-          $affected = xiu_add_data("insert into categories values (null, '{$slug}', '{$name}');");
+          $affected = xiu_update_data("insert into categories values (null, '{$slug}', '{$name}');");
 
           if ($affected<0) {
             exit("添加分类失败");
@@ -54,7 +54,7 @@
         add_data();
       }
 
-      $categories=xiu_get_data('SELECT name,slug  from categories;');
+      $categories=xiu_get_data('SELECT name,slug,id  from categories;');
 
 
 
@@ -138,14 +138,14 @@
               <?php 
                   foreach ($categories as $value):
                ?>
-
+                  
                 <tr>
                 <td class="text-center"><input type="checkbox"></td>
                 <td><?php echo $value['name'] ?></td>
                 <td><?php echo $value['slug'] ?></td>
                 <td class="text-center">
                   <a href="javascript:;" class="btn btn-info btn-xs">编辑</a>
-                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+                  <a href="/admin/categories-delete.php?id=<?php echo $value['id'] ?> " class="btn btn-danger btn-xs">删除</a>
                 </td>
 
 
