@@ -70,7 +70,7 @@ function xiu_update_data($sql){
 
 	if (!$query) {
     // 查询失败
-		exit('错误');
+		exit('查询错误啦');
 	}
 
   // 对于增删修改类的操作都是获取受影响行数
