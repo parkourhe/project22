@@ -3,6 +3,9 @@
       
       require_once('../functions.php');
       
+
+      // 验证当前登陆用户
+    xiu_get_current_user(); 
     
 
 
@@ -25,8 +28,9 @@
           }
 
 
-          $GLOBALS['sussce'] = true;
+          header('location:/admin/categories.php');
 
+           $GLOBALS['sussce'] = true;
 
       };
 
@@ -82,8 +86,10 @@
      
       }
 
-
-      $categories=xiu_get_data('SELECT name,slug,id  from categories;');
+     
+        $categories=xiu_get_data('SELECT name,slug,id  from categories;');
+      
+      
 
 
 
@@ -174,7 +180,7 @@
         <div class="col-md-8">
           <div class="page-action">
             <!-- show when multiple checked -->
-            <a class="btn btn-danger btn-sm" href="/admin/categories-delete.php" style="display: none" id="batches_dele">批量删除</a>
+            <a class="btn btn-danger btn-sm" href="/admin/categories-delete.php" style="display: none" id="batches_dele" >批量删除</a>
           </div>
           <table class="table table-striped table-bordered table-hover">
             <thead>
@@ -186,22 +192,26 @@
               </tr>
             </thead>
             <tbody>
+              <?php if (!empty($categories)) :?>
+                <?php 
+                foreach ($categories as $value):
+                 ?>
+
+                 <tr>
+                  <td class="text-center"><input type="checkbox" data-id=<?php echo $value['id'] ?>></td>
+                  <td><?php echo $value['name'] ?></td>
+                  <td><?php echo $value['slug'] ?></td>
+                  <td class="text-center">
+                    <a href="/admin/categories.php?id=<?php echo $value['id'] ?> " class="btn btn-info btn-xs">编辑</a>
+                    <a href="/admin/categories-delete.php?id=<?php echo $value['id'] ?> " class="btn btn-danger btn-xs">删除</a>
+                  </td>
+
+
+                <?php endforeach ?> 
+      
+
+             <?php endif ?>
               
-              <?php 
-                  foreach ($categories as $value):
-               ?>
-                  
-                <tr>
-                <td class="text-center"><input type="checkbox" data-id=<?php echo $value['id'] ?>></td>
-                <td><?php echo $value['name'] ?></td>
-                <td><?php echo $value['slug'] ?></td>
-                <td class="text-center">
-                  <a href="/admin/categories.php?id=<?php echo $value['id'] ?> " class="btn btn-info btn-xs">编辑</a>
-                  <a href="/admin/categories-delete.php?id=<?php echo $value['id'] ?> " class="btn btn-danger btn-xs">删除</a>
-                </td>
-
-
-             <?php endforeach ?> 
             </tbody>
           </table>
         </div>
@@ -222,6 +232,11 @@
           var batches_dele = $('#batches_dele');
 
           var deleteArr =[];
+
+
+          var allBtn = $('thead input');
+
+
           // 这种方法效率较低
           // inputelem.on('click',function(){
           //       inputelem.each(function(i,item){
@@ -246,7 +261,7 @@
               deleteArr.push($(this).attr('data-id'));
              
             }else{
-              deleteArr.splice(deleteArr.indexOf($(this).attr('data-id'),1));
+              deleteArr.splice(deleteArr.indexOf($(this).data('id'),1));
               
             }
 
@@ -259,6 +274,40 @@
           })
 
 
+
+
+          // 批量操作
+          allBtn.change(function(){
+
+              if (allBtn.prop('checked')===true) {
+                inputelem.each(function(){
+                  if ($(this).prop('checked')!==true) {
+                    $(this).prop('checked',true);
+
+                    deleteArr.includes($(this).data('id'))||deleteArr.push($(this).attr('data-id'));
+                    
+                  }
+
+                  batches_dele.fadeIn();
+
+                  batches_dele.prop('search','?id='+ deleteArr);
+
+
+                })
+              }else{
+                    inputelem.prop('checked',false);
+
+                    while(deleteArr.length) {
+                        // 删除数组
+                        deleteArr.shift();
+
+                    }   
+                    batches_dele.fadeOut();
+                  }
+
+
+          })
+         
 
 
       });

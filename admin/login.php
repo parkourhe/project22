@@ -62,6 +62,14 @@
 
       }
 
+      if ($_SERVER['REQUEST_METHOD']==='GET' && !empty($_GET['action'] ) && $_GET['action']==='loginOut') {
+
+          unset($_SESSION['cuurent_login']);
+
+
+      }
+
+
  ?>
 
 <!DOCTYPE html>

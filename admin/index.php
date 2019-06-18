@@ -5,7 +5,7 @@
 
     require_once('../config.php');
 
-
+    // 验证当前登陆用户
     xiu_get_current_user(); 
 
 

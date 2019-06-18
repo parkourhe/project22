@@ -1,3 +1,16 @@
+<?php 
+     // 如果是修改操作与查询操作一起，一定是先做修改，再查询
+      
+      require_once('../functions.php');
+      
+
+      // 验证当前登陆用户
+    xiu_get_current_user(); 
+
+
+ ?>
+
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
