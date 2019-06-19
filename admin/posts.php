@@ -1,3 +1,60 @@
+   <?php 
+       // 如果是修改操作与查询操作一起，一定是先做修改，再查询
+      
+      require_once('../functions.php');
+      
+
+      // 验证当前登陆用户
+      xiu_get_current_user(); 
+
+
+
+      // 关联数据查询
+      $posts = xiu_get_data("SELECT 
+        posts.id,
+        posts.title,
+        users.nickname as users_name,
+        categories.name as categories_name,
+        posts.created,
+        posts.`status`
+
+
+        from posts 
+        INNER JOIN categories on posts.category_id=categories.id
+        INNER JOIN users on posts.user_id=users.id
+        ORDER BY posts.created desc
+        LIMIT 0,10");
+
+
+      // 数据转换函数
+
+      function xiu_get_status($status){
+
+
+        $status_data = array('published' => '已发布',
+          'drafted' => '草稿',
+          'trashed'=>'回收站' );
+
+
+        return isset($status_data[$status])?$status_data[$status]:"未定义";
+      } 
+
+
+      //发布时间格式转换
+
+      function xiu_get_time($time){
+
+        $time = strtotime($time);
+
+        return (date('Y年m月d日<b\r>H:i:s',$time));
+
+
+      }
+
+   ?>
+
+
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -39,11 +96,11 @@
           <button class="btn btn-default btn-sm">筛选</button>
         </form>
         <ul class="pagination pagination-sm pull-right">
-          <li><a href="#">上一页</a></li>
-          <li><a href="#">1</a></li>
-          <li><a href="#">2</a></li>
-          <li><a href="#">3</a></li>
-          <li><a href="#">下一页</a></li>
+          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">上一页</a></li>
+          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">1</a></li>
+          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">2</a></li>
+          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">3</a></li>
+          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">下一页</a></li>
         </ul>
       </div>
       <table class="table table-striped table-bordered table-hover">
@@ -59,42 +116,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="text-center"><input type="checkbox"></td>
-            <td>随便一个名称</td>
-            <td>小小</td>
-            <td>潮科技</td>
-            <td class="text-center">2016/10/07</td>
-            <td class="text-center">已发布</td>
-            <td class="text-center">
-              <a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-              <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="text-center"><input type="checkbox"></td>
-            <td>随便一个名称</td>
-            <td>小小</td>
-            <td>潮科技</td>
-            <td class="text-center">2016/10/07</td>
-            <td class="text-center">已发布</td>
-            <td class="text-center">
-              <a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-              <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-            </td>
-          </tr>
-          <tr>
-            <td class="text-center"><input type="checkbox"></td>
-            <td>随便一个名称</td>
-            <td>小小</td>
-            <td>潮科技</td>
-            <td class="text-center">2016/10/07</td>
-            <td class="text-center">已发布</td>
-            <td class="text-center">
-              <a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-              <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-            </td>
-          </tr>
+          <?php  if (!empty($posts)):?>
+            <?php foreach ($posts as $item):?>
+              <tr>
+                <td class="text-center"><input type="checkbox"></td>
+                <td><?php echo $item['title'] ?></td>
+                <td><?php echo $item['users_name'] ?></td>
+                <td><?php echo $item['categories_name'] ?></td>
+                <td class="text-center"><?php echo xiu_get_time($item['created']) ?></td>
+                <td class="text-center"><?php echo xiu_get_status($item['status']) ?></td>
+                <td class="text-center">
+                  <a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
+                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+                </td>
+              </tr>
+
+
+            <?php endforeach ?>
+
+
+          <?php endif ?>
+          
         </tbody>
       </table>
     </div>
