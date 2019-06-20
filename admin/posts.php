@@ -7,7 +7,74 @@
       // 验证当前登陆用户
       xiu_get_current_user(); 
 
+      $size = 20;
 
+      // 上一页逻辑
+      if (!empty($_GET['lastPage']) && $_GET['lastPage']) {
+
+            $_GET['page']--;
+      }
+
+      // 下一页逻辑
+
+      if (!empty($_GET['nextPage']) && $_GET['nextPage']) {
+
+            $_GET['page']++;
+           
+      }
+
+      //GET方式传递当前选值
+      $page =empty($_GET['page'])?1:(int)$_GET['page'];
+
+
+      // 计算超出多少条公式,分页功能
+
+      $offset=  ($page-1)*$size;
+      
+
+      //导航器
+
+      $navCount=5;
+
+
+      $qujian = ($navCount-1)/2;
+
+      $begin = $page-$qujian;
+
+      $end =$page+$qujian;
+
+      if ($begin<=0) {
+        $begin=1;
+
+        $end = $begin +($navCount-1);
+      }
+
+      // 获取所有数据条数
+      $totalPosts = xiu_get_data("SELECT 
+        COUNT(1) as total
+        from posts 
+        INNER JOIN categories on posts.category_id=categories.id
+        INNER JOIN users on posts.user_id=users.id
+        limit 1")[0]['total'];
+
+    
+      $totalPages=(int)ceil((int)$totalPosts/$size);
+
+      //如果超出总页数处理
+
+      if ($end>$totalPages||$page>$totalPages) {
+      
+        $end=$totalPages;
+        $begin=$totalPages-($navCount-1);
+      }
+
+      if ($_GET['nextPage'] && $page>=$totalPages) {
+        $page=$totalPages;
+
+      }
+
+
+      
 
       // 关联数据查询
       $posts = xiu_get_data("SELECT 
@@ -23,7 +90,7 @@
         INNER JOIN categories on posts.category_id=categories.id
         INNER JOIN users on posts.user_id=users.id
         ORDER BY posts.created desc
-        LIMIT 0,10");
+        LIMIT {$offset},20");
 
 
       // 数据转换函数
@@ -42,6 +109,8 @@
 
       //发布时间格式转换
 
+
+
       function xiu_get_time($time){
 
         $time = strtotime($time);
@@ -50,7 +119,8 @@
 
 
       }
-
+    
+     
    ?>
 
 
@@ -68,7 +138,7 @@
 </head>
 <body>
   <script>NProgress.start()</script>
-
+  
   <div class="main">
    <?php include 'inc/navbar.php' ?>
     <div class="container-fluid">
@@ -96,11 +166,13 @@
           <button class="btn btn-default btn-sm">筛选</button>
         </form>
         <ul class="pagination pagination-sm pull-right">
-          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">上一页</a></li>
-          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">1</a></li>
-          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">2</a></li>
-          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">3</a></li>
-          <li><a href="<?php echo $_SERVER['PHP_SELF'] ?>">下一页</a></li>
+          <li><a href="?lastPage=true&page=<?php echo $page ?>">上一页</a></li>
+            <?php for ($i=$begin; $i <=$end ; $i++): ?>
+          <li <?php echo (int)$i===(int)$page?"class=active":"" ?>><a href="?page=<?php echo $i ?>"><?php echo $i ?></a></li>
+          <?php endfor ?>
+          <!-- 在这里判断一下 下一页到底时候的情况 -->
+          <li><a href="?nextPage=true&page=<?php echo $page==$totalPages?--$page:$page ?>">下一页</a></li>
+          
         </ul>
       </div>
       <table class="table table-striped table-bordered table-hover">
