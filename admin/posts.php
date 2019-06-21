@@ -9,6 +9,24 @@
 
       $size = 20;
 
+      //状态数据转换数组
+
+      $GLOBALS['status_data'] = array('published' => '已发布',
+        'drafted' => '草稿',
+        'trashed'=>'回收站' );
+
+      // 获取所有数据条数
+      $totalPosts = xiu_get_data("SELECT 
+        COUNT(1) as total
+        from posts 
+        INNER JOIN categories on posts.category_id=categories.id
+        INNER JOIN users on posts.user_id=users.id
+        limit 1")[0]['total'];
+
+    
+      $totalPages=(int)ceil((int)$totalPosts/$size);
+
+
       // 上一页逻辑
       if (!empty($_GET['lastPage']) && $_GET['lastPage']) {
 
@@ -26,6 +44,13 @@
       //GET方式传递当前选值
       $page =empty($_GET['page'])?1:(int)$_GET['page'];
 
+      // 判断用户是否通过URL操作
+      // 这里可以通过赋值的方式限制用户，也可以通过跳转的方式限制
+      // 列如
+      // header('location:/admin/posts.php?page=1')
+      $page = $page<1 ? $page=1:$page;
+
+      $page = $page>$totalPages?$page=$totalPages:$page;
 
       // 计算超出多少条公式,分页功能
 
@@ -34,14 +59,17 @@
 
       //导航器
 
-      $navCount=5;
+      $navCount=10;
 
-
-      $qujian = ($navCount-1)/2;
+      // 计算间距
+      $qujian = (int)floor(($navCount-1)/2);
 
       $begin = $page-$qujian;
 
       $end =$page+$qujian;
+
+
+      //导航器如果出现小于1的情况
 
       if ($begin<=0) {
         $begin=1;
@@ -49,18 +77,10 @@
         $end = $begin +($navCount-1);
       }
 
-      // 获取所有数据条数
-      $totalPosts = xiu_get_data("SELECT 
-        COUNT(1) as total
-        from posts 
-        INNER JOIN categories on posts.category_id=categories.id
-        INNER JOIN users on posts.user_id=users.id
-        limit 1")[0]['total'];
+      
+      //导航器如果超出总页数处理
 
     
-      $totalPages=(int)ceil((int)$totalPosts/$size);
-
-      //如果超出总页数处理
 
       if ($end>$totalPages||$page>$totalPages) {
       
@@ -68,10 +88,42 @@
         $begin=$totalPages-($navCount-1);
       }
 
-      if ($_GET['nextPage'] && $page>=$totalPages) {
+      if (isset($_GET['nextPage']) && $page>=$totalPages) {
         $page=$totalPages;
 
       }
+
+      // 获取分类数据
+
+
+      $categories=xiu_get_data("SELECT * from categories");
+
+      $where = '1=1';
+
+
+
+      //分类筛选功能
+
+      if (isset($_GET['categories']) && is_numeric((int)$_GET['categories'])) {
+
+        $categories_id = $_GET['categories'];
+
+        $where = 'category_id='.$categories_id;  
+
+      
+        if (isset($_GET['status']) && array_key_exists($_GET['status'], $GLOBALS['status_data'])) {
+
+            $where ='posts.category_id='.$categories_id.' and posts.status=\''.$_GET['status'].'\'';
+          
+          }  
+        
+      }
+
+      if (isset($_GET['categories']) && is_numeric((int)$_GET['categories']) && $_GET['categories'] == 'all') {
+        
+        $where= '1=1';
+      }
+
 
 
       
@@ -89,21 +141,19 @@
         from posts 
         INNER JOIN categories on posts.category_id=categories.id
         INNER JOIN users on posts.user_id=users.id
+        WHERE {$where}
         ORDER BY posts.created desc
-        LIMIT {$offset},20");
+        LIMIT {$offset},{$size}");
 
 
       // 数据转换函数
 
+
+
       function xiu_get_status($status){
 
-
-        $status_data = array('published' => '已发布',
-          'drafted' => '草稿',
-          'trashed'=>'回收站' );
-
-
-        return isset($status_data[$status])?$status_data[$status]:"未定义";
+      
+        return isset($GLOBALS['status_data'][$status])?$GLOBALS['status_data'][$status]:"未定义";
       } 
 
 
@@ -119,11 +169,8 @@
 
 
       }
-    
      
    ?>
-
-
 
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -153,15 +200,21 @@
       <div class="page-action">
         <!-- show when multiple checked -->
         <a class="btn btn-danger btn-sm" href="javascript:;" style="display: none">批量删除</a>
-        <form class="form-inline">
-          <select name="" class="form-control input-sm">
-            <option value="">所有分类</option>
-            <option value="">未分类</option>
+        <form class="form-inline" method="GET" action="<?php echo $_SERVER['PHP_SELF'] ?>">
+          <select name="categories" class="form-control input-sm">
+            <!-- 分类筛选 -->
+            <option value="all">所有分类</option>
+            <?php foreach ($categories as $item): ?>
+             <option value="<?php echo $item['id'] ?>" <?php if (isset($_GET['categories'])) {
+               echo $item['id']==$categories_id?'selected':'';
+             } ?>><?php echo $item['name'] ?></option>
+            <?php endforeach ?>
           </select>
-          <select name="" class="form-control input-sm">
-            <option value="">所有状态</option>
-            <option value="">草稿</option>
-            <option value="">已发布</option>
+          <select name="status" class="form-control input-sm">
+            <option value="all">所有状态</option>
+            <option value="<?php echo 'drafted' ?>" >草稿</option>
+            <option value="<?php echo 'published' ?>">已发布</option>
+            <option value="<?php echo 'trashed' ?>">回收站</option>
           </select>
           <button class="btn btn-default btn-sm">筛选</button>
         </form>
