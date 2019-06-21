@@ -7,7 +7,12 @@
       // 验证当前登陆用户
       xiu_get_current_user(); 
 
+
+      // 页面呈现限制
       $size = 20;
+
+      //sql语句
+       $where = '1=1';
 
       //状态数据转换数组
 
@@ -15,17 +20,55 @@
         'drafted' => '草稿',
         'trashed'=>'回收站' );
 
+
+      //分类筛选功能
+
+      $serch = '';
+      if (isset($_GET['categories']) && is_numeric((int)$_GET['categories'])) {
+
+        $categories_id = $_GET['categories'];
+
+        $where = 'category_id='.$categories_id;  
+
+        $serch .= '&categories='.$_GET['categories'];
+
+      
+        if (isset($_GET['status']) && array_key_exists($_GET['status'], $GLOBALS['status_data'])) {
+
+            $where ='posts.category_id='.$categories_id.' and posts.status=\''.$_GET['status'].'\'';
+
+            $serch.='&status='.$_GET['status'];
+            
+
+          } 
+        
+      }
+
+      if (isset($_GET['categories']) && is_numeric((int)$_GET['categories']) && $_GET['categories'] == 'all') {
+        
+        $where= '1=1';
+      }
+
+      
       // 获取所有数据条数
       $totalPosts = xiu_get_data("SELECT 
         COUNT(1) as total
         from posts 
         INNER JOIN categories on posts.category_id=categories.id
         INNER JOIN users on posts.user_id=users.id
+        WHERE ${where}
         limit 1")[0]['total'];
 
     
       $totalPages=(int)ceil((int)$totalPosts/$size);
 
+
+      
+
+      // 获取分类数据
+
+
+      $categories=xiu_get_data("SELECT * from categories");
 
       // 上一页逻辑
       if (!empty($_GET['lastPage']) && $_GET['lastPage']) {
@@ -69,7 +112,7 @@
       $end =$page+$qujian;
 
 
-      //导航器如果出现小于1的情况
+       //导航器如果出现小于1的情况
 
       if ($begin<=0) {
         $begin=1;
@@ -80,49 +123,25 @@
       
       //导航器如果超出总页数处理
 
-    
-
       if ($end>$totalPages||$page>$totalPages) {
       
         $end=$totalPages;
         $begin=$totalPages-($navCount-1);
+
+        if ($begin<=0) {
+        $begin=1;
+        }
       }
+
+     
+
 
       if (isset($_GET['nextPage']) && $page>=$totalPages) {
         $page=$totalPages;
 
       }
 
-      // 获取分类数据
-
-
-      $categories=xiu_get_data("SELECT * from categories");
-
-      $where = '1=1';
-
-
-
-      //分类筛选功能
-
-      if (isset($_GET['categories']) && is_numeric((int)$_GET['categories'])) {
-
-        $categories_id = $_GET['categories'];
-
-        $where = 'category_id='.$categories_id;  
-
       
-        if (isset($_GET['status']) && array_key_exists($_GET['status'], $GLOBALS['status_data'])) {
-
-            $where ='posts.category_id='.$categories_id.' and posts.status=\''.$_GET['status'].'\'';
-          
-          }  
-        
-      }
-
-      if (isset($_GET['categories']) && is_numeric((int)$_GET['categories']) && $_GET['categories'] == 'all') {
-        
-        $where= '1=1';
-      }
 
 
 
@@ -199,7 +218,7 @@
       </div> -->
       <div class="page-action">
         <!-- show when multiple checked -->
-        <a class="btn btn-danger btn-sm" href="javascript:;" style="display: none">批量删除</a>
+        <a class="btn btn-danger btn-sm" href="/admin/categories-delete.php" style="display: none" id="batches_dele">批量删除</a>
         <form class="form-inline" method="GET" action="<?php echo $_SERVER['PHP_SELF'] ?>">
           <select name="categories" class="form-control input-sm">
             <!-- 分类筛选 -->
@@ -212,16 +231,22 @@
           </select>
           <select name="status" class="form-control input-sm">
             <option value="all">所有状态</option>
-            <option value="<?php echo 'drafted' ?>" >草稿</option>
-            <option value="<?php echo 'published' ?>">已发布</option>
-            <option value="<?php echo 'trashed' ?>">回收站</option>
+            <option value="<?php echo 'drafted' ?>" <?php if (isset($_GET['status'])) {
+               echo $_GET['status']=='drafted'? "selected":"";
+            } ?>>草稿</option>
+            <option value="<?php echo 'published' ?>" <?php if (isset($_GET['status'])) {
+               echo $_GET['status']=='published'? "selected":"";
+            } ?>>已发布</option>
+            <option value="<?php echo 'trashed' ?>" <?php if (isset($_GET['status'])) {
+               echo $_GET['status']=='trashed'? "selected":"";
+            } ?>>回收站</option>
           </select>
           <button class="btn btn-default btn-sm">筛选</button>
         </form>
         <ul class="pagination pagination-sm pull-right">
           <li><a href="?lastPage=true&page=<?php echo $page ?>">上一页</a></li>
             <?php for ($i=$begin; $i <=$end ; $i++): ?>
-          <li <?php echo (int)$i===(int)$page?"class=active":"" ?>><a href="?page=<?php echo $i ?>"><?php echo $i ?></a></li>
+          <li <?php echo (int)$i===(int)$page?"class=active":"" ?>><a href="?page=<?php echo $i. $serch ?> "><?php echo $i ?></a></li>
           <?php endfor ?>
           <!-- 在这里判断一下 下一页到底时候的情况 -->
           <li><a href="?nextPage=true&page=<?php echo $page==$totalPages?--$page:$page ?>">下一页</a></li>
@@ -244,7 +269,7 @@
           <?php  if (!empty($posts)):?>
             <?php foreach ($posts as $item):?>
               <tr>
-                <td class="text-center"><input type="checkbox"></td>
+                <td class="text-center"><input type="checkbox" data-id=<?php echo $item['id'] ?>></td>
                 <td><?php echo $item['title'] ?></td>
                 <td><?php echo $item['users_name'] ?></td>
                 <td><?php echo $item['categories_name'] ?></td>
@@ -252,7 +277,7 @@
                 <td class="text-center"><?php echo xiu_get_status($item['status']) ?></td>
                 <td class="text-center">
                   <a href="javascript:;" class="btn btn-default btn-xs">编辑</a>
-                  <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
+                  <a href="/admin/post-delete.php?id=<?php echo $item['id'] ?>" class="btn btn-danger btn-xs">删除</a>
                 </td>
               </tr>
 
@@ -271,6 +296,95 @@
 
   <script src="/static/assets/vendors/jquery/jquery.js"></script>
   <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+  <script>
+        $(function($){
+
+          // jq变量本地化
+          var inputelem = $('tbody input');
+
+          var batches_dele = $('#batches_dele');
+
+          var deleteArr =[];
+
+
+          var allBtn = $('thead input');
+
+
+          // 这种方法效率较低
+          // inputelem.on('click',function(){
+          //       inputelem.each(function(i,item){
+          //         console.log($(item).prop('checked'));
+          //       });
+
+          // });
+
+          // 方法2
+
+          inputelem.change(function(){
+
+            if ($(this).prop('checked')) {
+
+              // 三种拿到自定义属性的方式
+              // console.log(this.dataset['id']);
+
+              // console.log($(this).attr('data-id'));
+
+              // console.log($(this).data('id'));
+
+              deleteArr.push($(this).attr('data-id'));
+             
+            }else{
+              deleteArr.splice(deleteArr.indexOf($(this).data('id'),1));
+              
+            }
+
+           
+            deleteArr.length ? batches_dele.fadeIn():batches_dele.fadeOut(); 
+
+            batches_dele.prop('search','?id='+ deleteArr);
+
+            console.log(deleteArr);
+          })
+
+
+          // 批量操作
+          allBtn.change(function(){
+
+              if (allBtn.prop('checked')===true) {
+                inputelem.each(function(){
+                  if ($(this).prop('checked')!==true) {
+                    $(this).prop('checked',true);
+
+                    deleteArr.includes($(this).data('id'))||deleteArr.push($(this).attr('data-id'));
+                    
+                  }
+
+                  batches_dele.fadeIn();
+
+                  batches_dele.prop('search','?id='+ deleteArr);
+
+
+                })
+              }else{
+                    inputelem.prop('checked',false);
+
+                    while(deleteArr.length) {
+                        // 删除数组
+                        deleteArr.shift();
+
+                    }   
+                    batches_dele.fadeOut();
+                  }
+
+
+          })
+         
+
+      });
+
+  </script>
+
+
   <script>NProgress.done()</script>
 </body>
 </html>
