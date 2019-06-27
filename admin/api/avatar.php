@@ -1,6 +1,6 @@
 <?php 
 	
-	require_once('../../config.php');
+	require_once('../config.php');
 
 	if (empty($_GET)) {
 		exit('请传入制定参数');		

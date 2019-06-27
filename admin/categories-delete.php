@@ -3,7 +3,7 @@
 	// 删除业务的逻辑，防止sql注入
 
 
-	require_once("../functions.php");
+	require_once("../../functions.php");
 
 
 	if (empty($_GET['id'])) {

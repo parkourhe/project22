@@ -41,7 +41,7 @@
         <div class="btn-batch" style="display: none">
           <button class="btn btn-info btn-sm">批量批准</button>
           <button class="btn btn-warning btn-sm">批量拒绝</button>
-          <button class="btn btn-danger btn-sm">批量删除</button>
+          <button class="btn btn-danger btn-sm" id="batches_dele">批量删除</button>
         </div>
         <ul class="pagination pagination-sm pull-right">
           <li><a href="#">上一页</a></li>
@@ -60,11 +60,11 @@
             <th>评论在</th>
             <th>提交于</th>
             <th>状态</th>
-            <th class="text-center" width="100">操作</th>
+            <th class="text-center" width="150">操作</th>
           </tr>
         </thead>
         <tbody>
-          <tr class="danger">
+          <!-- <tr class="danger">
             <td class="text-center"><input type="checkbox"></td>
             <td>大大</td>
             <td>楼主好人，顶一个</td>
@@ -75,40 +75,60 @@
               <a href="post-add.php" class="btn btn-info btn-xs">批准</a>
               <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
             </td>
-          </tr>
-          <tr>
-            <td class="text-center"><input type="checkbox"></td>
-            <td>大大</td>
-            <td>楼主好人，顶一个</td>
-            <td>《Hello world》</td>
-            <td>2016/10/07</td>
-            <td>已批准</td>
-            <td class="text-center">
-              <a href="post-add.php" class="btn btn-warning btn-xs">驳回</a>
+          </tr> -->
+
+
+
+          <script type="text/js-render" id="tmp1">
+           {{for comments}}
+           <tr {{if status=='held'}}
+           class="warning"
+           {{else status=='rejected'}}
+           class='danger' 
+           {{/if}} >
+             <td class="text-center"><input type="checkbox"></td>
+             <td>{{:author}}</td>
+             <td>{{:content}}</td>
+             <td>《{{:title}}》</td>
+             <td>{{:created}}</td>
+             <td>{{:status}}</td>
+             <td class="text-center">
+              {{if status=='held'}}
+              <a href="post-add.php" class="btn btn-info btn-xs">批准</a>
+              <a href="post-add.php" class="btn btn-warning btn-xs">拒绝</a>
+              {{else status=='rejected'}}
+              <a href="post-add.php" class="btn btn-info btn-xs">批准</a>
+              {{else}}
+              {{/if}}
               <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
             </td>
           </tr>
-          <tr>
-            <td class="text-center"><input type="checkbox"></td>
-            <td>大大</td>
-            <td>楼主好人，顶一个</td>
-            <td>《Hello world》</td>
-            <td>2016/10/07</td>
-            <td>已批准</td>
-            <td class="text-center">
-              <a href="post-add.php" class="btn btn-warning btn-xs">驳回</a>
-              <a href="javascript:;" class="btn btn-danger btn-xs">删除</a>
-            </td>
-          </tr>
+          {{/for}}
+
+          </script>
+          
         </tbody>
       </table>
     </div>
   </div>
   <?php $current_pages='comments' ?>
   <?php include 'inc/sidebar.php' ?>
-
+  
   <script src="/static/assets/vendors/jquery/jquery.js"></script>
   <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+  <script src="/static/assets/vendors/jsrender/jsrender.js"></script>
+  <script>
+
+      
+      $.get('/admin/api/comments-data.php',{},function(res){
+        console.log(res);
+        var data = res; 
+        var html = $("#tmp1").render({comments : data});
+        $("tbody").html(html); 
+      });
+      
+
+  </script>
   <script>NProgress.done()</script>
 </body>
 </html>
