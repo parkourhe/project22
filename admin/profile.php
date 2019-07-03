@@ -74,6 +74,56 @@
 
   <script src="/static/assets/vendors/jquery/jquery.js"></script>
   <script src="/static/assets/vendors/bootstrap/js/bootstrap.js"></script>
+  <script>
+      $('#avatar').on('change',function(){
+
+        var fileELEM = $(this).prop('files');
+
+         if (!fileELEM.length) return;
+         
+          // JS处理拓展名逻辑
+         var nameIn = fileELEM[0].name.lastIndexOf(".")+1;
+
+         var nameEx = fileELEM[0].name.substr(nameIn);
+
+         if (nameEx!='png') {
+          alert('请上传PNG');
+          return;
+         }
+
+          // 成功则接收
+
+          var file = fileELEM[0];
+
+         // FormData(form)是H5种新增的成员，专门配合AJAX操作，用于在客户端与服务端之间传递二进制数据
+         var data = new FormData();
+
+         data.append('avatar',file);
+
+         // ajax操作
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('POST','/admin/api/upload.php');
+
+        xhr.send(data);
+
+        xhr.onload = function(){
+          console.log(xhr.responseText);
+          $('#avatar').siblings().attr('src',xhr.responseText);
+
+        }
+
+
+
+
+
+      })
+
+
+
+
+  </script>
   <script>NProgress.done()</script>
 </body>
 </html>

@@ -49,5 +49,8 @@
           <li <?php echo $current_pages==='settings'?'class=active':'' ?>><a href="settings.php">网站设置</a></li>
         </ul>
       </li>
+      <li <?php echo $current_pages === 'movie.php'? "class=active":"" ?>>
+        <a href="movie.php"><i class="fa fa-dashboard"></i>电影</a>
+      </li>
     </ul>
   </div>

@@ -11,7 +11,10 @@
 	}
 	
 
+
 	$id = $_GET['id'];
+
+	
 
 	$aff = xiu_update_data("DELETE FROM comments where id IN ( ".$id.")");
 

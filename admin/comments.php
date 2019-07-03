@@ -253,12 +253,16 @@
         $.get('/admin/api/comments-data.php',{page:page},function(res){    
           var html = $("#tmp1").render({comments : res.comment});
           console.log(res);
-
+          if (page>res.total_page) {
+            page=res.total_page;
+          }
           // 分页器操作
           $('.pagination').twbsPagination({
+
             totalPages:res.total_page,
             visiablePages:5,
-             initiateStartPageClick: false,
+            startPage:page,
+            initiateStartPageClick: false,
             onPageClick:function(e,page){
               // $('tbody').fadeOut();
               load_data(page);
@@ -280,7 +284,6 @@
           var id=$(this).parent().parent().data('id');
 
           $.get('/admin/api/comments-delete.php',{id:id},function(res){
-
 
               // 如果删除成功就重新加载页面
                 if (res) {
